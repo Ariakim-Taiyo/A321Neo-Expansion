@@ -1,6 +1,6 @@
 let tiltToHold = 0;
 let ils = true;
-let deadZone = 0.01;
+let deadZone = 0.02;
 let pitchCenter = 0;
 let rollTohold = 0;
 let lastlla = [];
@@ -35,43 +35,57 @@ function getVV() {
 
 function computePitch() {
   // implement tilt holding
+  if (geofs.animation.values.groundContact == 0) {
+  if (geofs.animation.values.accZ <= 30 && geofs.animation.values.accZ >= -30) {
   if (geofs.animation.values.pitch <= deadZone && geofs.animation.values.pitch >= -deadZone) {
-    pitchStage1 = -(tiltToHold - geofs.animation.values.atilt) / 10
+    pitchStage1 = -(tiltToHold - geofs.animation.values.atilt) / 20
     pitchCenter = pitchStage1;
   }
   else {
     //stall protection
     if (geofs.animation.values.aoa <= 10) {
-      pitchStage1 = -(tiltToHold - geofs.animation.values.atilt) / 10
+      pitchStage1 = -(tiltToHold - geofs.animation.values.atilt) / 5
       tiltToHold = geofs.animation.values.atilt - geofs.animation.values.pitch * 5
     }
     else {
-      pitchStage1 = -(tiltToHold - geofs.animation.values.atilt) / 10
-      tiltToHold = (geofs.animation.values.atilt - geofs.animation.values.pitch * 5) + 10
+      pitchStage1 = -(tiltToHold - geofs.animation.values.atilt) / 5
+      tiltToHold = (geofs.animation.values.atilt - geofs.animation.values.pitch * 5) + 1
     }
   }
   geofs.animation.values.computedPitch = clamp(pitchStage1 + pitchCenter, -1, 1)
-
-
+}
+  else {
+    geofs.animation.values.computedPitch = geofs.animation.values.pitch;
+  }
+  }
+  else {
+    geofs.animation.values.computedPitch = geofs.animation.values.pitch / 2;
+  }
 }
 
 function computeRoll() {
+    if (geofs.animation.values.groundContact == 0) {
   //roll stabilization from input
   if (rollTohold <= 30 && rollTohold >= -30) {
-    rollTohold = rollTohold - geofs.animation.values.roll / 5;
-    geofs.animation.values.computedRoll = clamp((geofs.animation.values.aroll - rollTohold) / 10, -1, 1);
+    rollTohold = rollTohold - geofs.animation.values.roll;
+    geofs.animation.values.computedRoll = clamp((geofs.animation.values.aroll - rollTohold) / 15, -1, 1);
   }
   else {
     if (geofs.animation.values.aroll >= 0) {
       rollTohold = 29;
-      geofs.animation.values.computedRoll = clamp((geofs.animation.values.aroll - rollTohold) / 10, -1, 1)
+      geofs.animation.values.computedRoll = clamp((geofs.animation.values.aroll - rollTohold) / 15, -1, 1)
     }
     if (geofs.animation.values.aroll <= 0) {
       rollTohold = -29;
-      geofs.animation.values.computedRoll = clamp((geofs.animation.values.aroll - rollTohold) / 10, -1, 1)
+      geofs.animation.values.computedRoll = clamp((geofs.animation.values.aroll - rollTohold) / 15, -1, 1)
     }
   }
+  }
+  else {
+    geofs.animation.values.computedRoll = geofs.animation.values.roll
+  }
 }
+
 function computeYaw() {
   //yaw damper experiment. probably not good for crosswinds lol
   geofs.animation.values.computedYaw = geofs.animation.values.yaw
@@ -92,6 +106,7 @@ function pushInputs() {
   rollInputs.push(geofs.animation.values.computedRoll);
   yawInputs.push(geofs.animation.values.computedYaw);
 }
+
 function computeOutputs() {
   var pitchcheck = movingAvg(pitchInputs, 2, 2);
   var rollcheck = movingAvg(rollInputs, 2, 2);
