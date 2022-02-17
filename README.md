@@ -19,6 +19,15 @@ Note, this is a pre release and is subject to change at any moment. Much of what
 
 Old versions of this plugin are NOT COMPATIBLE with low-end devices. Those versions are reliant on a minimum refresh rate of 30 fps, as this is the refresh rate of the fly by wire system. For best results, use the latest revision.
 
+**How To Install:**<br>
+Note: In order to use this plugin, you must have access to the chrome devtools. If you try to use a third party console it will not work.<br>
+
+Copy the contents of `A321neo.js` into the chrome console. you can access it with `CTRL+SHIFT+C` or `F12`. To access the contents of the file, simply click on its name in the github page.<br>
+
+Execute the code with enter.<br>
+
+You do not need to download the files to your computer. Trying to run the file on node.js will result in errors.
+
 **CHANGELOGS:**<br>
 Version Pre-Release 1:<br>
   First Iteration of the plugin. Had severe FBW issues.
